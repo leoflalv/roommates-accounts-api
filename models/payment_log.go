@@ -1,7 +1,9 @@
 package models
 
+import "go.mongodb.org/mongo-driver/bson/primitive"
+
 type PaymentLog struct {
-	ID          string           `json:"id"`
-	Description string           `json:"description"`
-	Portions    []PaymentPortion `json:"portions"`
+	ID          primitive.ObjectID `json:"_id" bson:"_id"`
+	Description string             `json:"description,omitempty" bson:"description,omitempty"`
+	Portions    []PaymentPortion   `bson:"inline"`
 }
