@@ -7,3 +7,11 @@ type PaymentLog struct {
 	Description string             `json:"description,omitempty" bson:"description,omitempty"`
 	Portions    []PaymentPortion   `bson:"inline"`
 }
+
+type PaymentLogService interface {
+	GetPaymentLogById(id string) (PaymentLog, error)
+	GetAllPaymentLog() ([]PaymentLog, error)
+	CreatePaymentLog(paymentLog *PaymentLog) (string, error)
+	UpdatePaymentLog(paymentLog *PaymentLog) (string, error)
+	RemovePaymentLog(id string) (string, error)
+}

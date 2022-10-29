@@ -14,10 +14,9 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+
 var mongoDBUser string
 var mongoDBPassword string
-
-type DB mongo.Database
 
 func init() {
 	err := godotenv.Load(".env")
@@ -31,7 +30,7 @@ func init() {
 }
 
 // ConnectDB: Return a data base model.
-func ConnectDB(dbName string) *DB {
+func ConnectDB(dbName string) *mongo.Database {
 
 	// MongoDBClusterUri
 	uri := fmt.Sprintf("mongodb+srv://%s:%s@roommatepaymentcluster.baqgzpz.mongodb.net/?retryWrites=true&w=majority",
@@ -57,13 +56,7 @@ func ConnectDB(dbName string) *DB {
 
 	db := client.Database(dbName)
 
-	return (*DB)(db)
-}
-
-func (db *DB) GetColletion(collectionName string) *mongo.Collection {
-	collection := (*mongo.Database)(db).Collection(collectionName)
-
-	return collection
+	return db
 }
 
 type ErrorResponse struct {

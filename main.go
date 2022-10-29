@@ -4,16 +4,20 @@ import (
 	"fmt"
 
 	"github.com/leoflalv/roommates-accounts-api/connection"
+	"github.com/leoflalv/roommates-accounts-api/services"
 )
 
-//Connection mongoDB with helper class
-var db = connection.ConnectDB("roommate_accounts")
-
 func main() {
+	db := connection.ConnectDB("roommate_accounts")
 
-	a := db.GetColletion("users")
+	userService := services.UserService{Db: db}
 
-	if a == nil {
-		fmt.Println("Wierd")
+	user, err := userService.GetUserById("634c15ac748267b3a765af3e")
+
+	if err != nil {
+		fmt.Println(err.Error())
+	} else {
+		fmt.Println(user)
 	}
+
 }
