@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/leoflalv/roommates-accounts-api/connection"
 	"github.com/leoflalv/roommates-accounts-api/services"
@@ -12,10 +13,11 @@ func main() {
 
 	userService := services.UserService{Db: db}
 
-	user, err := userService.GetUserById("634c15ac748267b3a765af3e")
+	user, err := userService.RemoveUser("635d87d5a2cc82dc7773059f")
 
 	if err != nil {
-		fmt.Println(err.Error())
+		fmt.Println(">>>>")
+		log.Fatal(err.Error())
 	} else {
 		fmt.Println(user)
 	}
