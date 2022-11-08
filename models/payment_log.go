@@ -7,6 +7,12 @@ type UserInfo struct {
 	Username string             `json:"userName" bson:"userName"`
 }
 
+type PaymentPortion struct {
+	UserId   primitive.ObjectID `json:"userId" bson:"userId"`
+	UserName string             `json:"userName" bson:"userName"`
+	Portion  float64            `json:"portion" bson:"portion"`
+}
+
 type PaymentLog struct {
 	ID            primitive.ObjectID   `json:"_id" bson:"_id"`
 	Description   string               `json:"description,omitempty" bson:"description,omitempty"`

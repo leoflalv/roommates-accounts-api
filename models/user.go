@@ -2,9 +2,17 @@ package models
 
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
+type Debt struct {
+	UserId   primitive.ObjectID `json:"userId" bson:"userId"`
+	UserName string             `json:"userName" bson:"userName"`
+	Amount   float64            `json:"amount" bson:"amount"`
+}
+
 type User struct {
-	ID   primitive.ObjectID `json:"_id" bson:"_id,omitempty"`
-	Name string             `json:"name" bson:"name"`
+	ID        primitive.ObjectID `json:"_id" bson:"_id,omitempty"`
+	Name      string             `json:"name" bson:"name"`
+	ToPay     []Debt             `json:"toPay" bson:"toPay"`
+	ToCollect []Debt             `json:"toCollect" bson:"toCollect"`
 }
 
 type UserService interface {

@@ -50,8 +50,10 @@ func (u *UserService) CreateUser(user models.User) (models.User, error) {
 
 	if err == nil {
 		newUser = models.User{
-			ID:   result.InsertedID.(primitive.ObjectID),
-			Name: user.Name,
+			ID:        result.InsertedID.(primitive.ObjectID),
+			Name:      user.Name,
+			ToPay:     user.ToPay,
+			ToCollect: user.ToCollect,
 		}
 	}
 
