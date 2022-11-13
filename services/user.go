@@ -42,7 +42,7 @@ func (u *UserService) GetAllUsers() ([]models.User, error) {
 	return users, err
 }
 
-func (u *UserService) CreateUser(user models.User) (models.User, error) {
+func (u *UserService) CreateUser(user *models.User) (models.User, error) {
 	var newUser models.User
 	userCollection := u.Db.Collection(connection.USERS_COLLECTION)
 
@@ -60,12 +60,12 @@ func (u *UserService) CreateUser(user models.User) (models.User, error) {
 	return newUser, err
 }
 
-func (u *UserService) UpdateUser(user models.User) (models.User, error) {
+func (u *UserService) UpdateUser(user *models.User) error {
 	userCollection := u.Db.Collection(connection.USERS_COLLECTION)
 
 	_, err := userCollection.ReplaceOne(context.TODO(), bson.M{"_id": user.ID}, user)
 
-	return user, err
+	return err
 }
 
 func (u *UserService) RemoveUser(id string) (string, error) {

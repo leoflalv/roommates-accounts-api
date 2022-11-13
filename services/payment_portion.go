@@ -85,7 +85,7 @@ func (pl *PaymentLogService) GetPaymentsLogsByPayer(id string) ([]models.Payment
 	return paymentLogs, err
 }
 
-func (u *PaymentLogService) CreatePaymentLog(paymentLog models.PaymentLog) (models.PaymentLog, error) {
+func (u *PaymentLogService) CreatePaymentLog(paymentLog *models.PaymentLog) (models.PaymentLog, error) {
 	var newPaymentLog models.PaymentLog
 	paymentLogCollection := u.Db.Collection(connection.PAYMENT_LOGS_COLLECTION)
 

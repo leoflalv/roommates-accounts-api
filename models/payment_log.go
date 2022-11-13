@@ -27,7 +27,7 @@ type PaymentLogService interface {
 	GetAllPaymentLog() ([]PaymentLog, error)
 	GetAllPaymentLogByPayer(id string) ([]PaymentLog, error)
 	GetAllPaymentLogsByUserInvolved(userId string) ([]PaymentLog, error)
-	CreatePaymentLog(paymentLog *PaymentLog) (string, error)
+	CreatePaymentLog(paymentLog *PaymentLog) (PaymentLog, error)
 	UpdatePaymentLog(paymentLog *PaymentLog) (string, error)
 	RemovePaymentLog(id string) (string, error)
 }
