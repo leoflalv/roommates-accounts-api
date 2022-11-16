@@ -16,7 +16,7 @@ type User struct {
 }
 
 type UserService interface {
-	GetUserById(id string) (User, error)
+	GetUserById(id string) (*User, error)
 	GetAllUsers() ([]User, error)
 	CreateUser(user *User) (User, error)
 	UpdateUser(user *User) error

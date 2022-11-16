@@ -15,7 +15,8 @@ var initialized bool = false
 func (rm *RoutesManager) Intialize() {
 
 	rm.Router.HandleFunc("/users", rm.UserController.GetUsersHandler).Methods("GET").Schemes("http")
-	rm.Router.HandleFunc("/test/", rm.UserController.CreateUserHandler).Methods("POST")
+	rm.Router.HandleFunc("/user/{id}", rm.UserController.GetUsersByIdHandler).Methods("GET").Schemes("http")
+	// rm.Router.HandleFunc("/test/", rm.UserController.CreateUserHandler).Methods("POST")
 
 	initialized = true
 }

@@ -15,17 +15,19 @@ type UserService struct {
 	Db *mongo.Database
 }
 
-func (u *UserService) GetUserById(id string) (models.User, error) {
-
+func (u *UserService) GetUserById(id string) (*models.User, error) {
 	var user models.User
 	userCollection := u.Db.Collection(connection.USERS_COLLECTION)
 	objId, err := primitive.ObjectIDFromHex(id)
 
 	if err == nil {
 		err = userCollection.FindOne(context.TODO(), bson.M{"_id": objId}).Decode(&user)
+		if err == mongo.ErrNoDocuments {
+			return nil, err
+		}
 	}
 
-	return user, err
+	return &user, err
 }
 
 func (u *UserService) GetAllUsers() ([]models.User, error) {
