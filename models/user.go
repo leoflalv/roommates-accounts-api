@@ -20,5 +20,5 @@ type UserService interface {
 	GetAllUsers() ([]User, error)
 	CreateUser(user *User) (User, error)
 	UpdateUser(user *User) error
-	RemoveUser(id string) (string, error)
+	RemoveUser(id string) error
 }
