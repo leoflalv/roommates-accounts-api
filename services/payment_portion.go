@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -42,11 +43,7 @@ func (pl *PaymentLogService) GetAllPaymentLogs() ([]models.PaymentLog, error) {
 	return paymentLogs, err
 }
 
-type Test struct {
-	UserId primitive.ObjectID `json:"_userId" bson:"_userId"`
-}
-
-func (pl *PaymentLogService) GetPaymentsByUserInvolved(id string) ([]models.PaymentLog, error) {
+func (pl *PaymentLogService) GetPaymentLogsByUserInvolved(id string) ([]models.PaymentLog, error) {
 
 	var paymentLogs []models.PaymentLog
 	paymentLogCollection := pl.Db.Collection(connection.PAYMENT_LOGS_COLLECTION)
@@ -66,7 +63,7 @@ func (pl *PaymentLogService) GetPaymentsByUserInvolved(id string) ([]models.Paym
 	return paymentLogs, err
 }
 
-func (pl *PaymentLogService) GetPaymentsLogsByPayer(id string) ([]models.PaymentLog, error) {
+func (pl *PaymentLogService) GetPaymentLogsByPayer(id string) ([]models.PaymentLog, error) {
 
 	var paymentLogs []models.PaymentLog
 	paymentLogCollection := pl.Db.Collection(connection.PAYMENT_LOGS_COLLECTION)
@@ -89,30 +86,46 @@ func (u *PaymentLogService) CreatePaymentLog(paymentLog *models.PaymentLog) (mod
 	var newPaymentLog models.PaymentLog
 	paymentLogCollection := u.Db.Collection(connection.PAYMENT_LOGS_COLLECTION)
 
-	result, err := paymentLogCollection.InsertOne(context.TODO(), paymentLog)
+	var usersInvolved []primitive.ObjectID
+	for _, portion := range paymentLog.Portions {
+		usersInvolved = append(usersInvolved, portion.UserId)
+	}
+
+	paymentLogToCreate := models.PaymentLog{
+		Description:   paymentLog.Description,
+		Amount:        paymentLog.Amount,
+		Portions:      paymentLog.Portions,
+		PaidBy:        paymentLog.PaidBy,
+		UsersInvolved: usersInvolved,
+		CreatedAt:     time.Now(),
+	}
+
+	result, err := paymentLogCollection.InsertOne(context.TODO(), paymentLogToCreate)
 
 	if err == nil {
 		newPaymentLog = models.PaymentLog{
-			ID:          result.InsertedID.(primitive.ObjectID),
-			Description: paymentLog.Description,
-			Amount:      paymentLog.Amount,
-			Portions:    paymentLog.Portions,
-			PaidBy:      paymentLog.PaidBy,
+			ID:            result.InsertedID.(primitive.ObjectID),
+			Description:   paymentLogToCreate.Description,
+			Amount:        paymentLogToCreate.Amount,
+			Portions:      paymentLogToCreate.Portions,
+			PaidBy:        paymentLogToCreate.PaidBy,
+			UsersInvolved: paymentLogToCreate.UsersInvolved,
+			CreatedAt:     paymentLogToCreate.CreatedAt,
 		}
 	}
 
 	return newPaymentLog, err
 }
 
-func (u *PaymentLogService) UpdatePaymentLog(paymentLog models.PaymentLog) (models.PaymentLog, error) {
+func (u *PaymentLogService) UpdatePaymentLog(paymentLog *models.PaymentLog) error {
 	paymentLogCollection := u.Db.Collection(connection.PAYMENT_LOGS_COLLECTION)
 
 	_, err := paymentLogCollection.ReplaceOne(context.TODO(), bson.M{"_id": paymentLog.ID}, paymentLog)
 
-	return paymentLog, err
+	return err
 }
 
-func (u *PaymentLogService) RemovePaymentLog(id string) (string, error) {
+func (u *PaymentLogService) RemovePaymentLog(id string) error {
 	paymentLogCollection := u.Db.Collection(connection.PAYMENT_LOGS_COLLECTION)
 	objId, err := primitive.ObjectIDFromHex(id)
 
@@ -120,5 +133,5 @@ func (u *PaymentLogService) RemovePaymentLog(id string) (string, error) {
 		_, err = paymentLogCollection.DeleteOne(context.TODO(), bson.M{"_id": objId})
 	}
 
-	return id, err
+	return err
 }

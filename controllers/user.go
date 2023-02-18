@@ -142,6 +142,9 @@ func (uc UserController) UpdateUserHandler(w http.ResponseWriter, r *http.Reques
 	if err == mongo.ErrNoDocuments {
 		resp = Response[models.User]{Success: false, Errors: "No documents with this id"}
 		w.WriteHeader(http.StatusNotFound)
+		jsonResponse, _ := json.Marshal(resp)
+		w.Write(jsonResponse)
+		return
 	}
 
 	if err != nil {

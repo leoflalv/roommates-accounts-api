@@ -23,10 +23,14 @@ func (app *App) Initialize(dbName string) {
 	userService := &services.UserService{Db: db}
 	userController := controllers.UserController{UserService: userService}
 
+	paymentLogService := &services.PaymentLogService{Db: db}
+	paymentLogController := controllers.PaymentLogController{UserService: userService, PaymentLogService: paymentLogService}
+
 	router := mux.NewRouter()
 	routesManager := routes.RoutesManager{
-		UserController: userController,
-		Router:         *router,
+		UserController:       userController,
+		PaymentLogController: paymentLogController,
+		Router:               *router,
 	}
 	routesManager.Intialize()
 	app.RoutesManager = routesManager
