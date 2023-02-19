@@ -51,5 +51,5 @@ func (app *App) Run(addr string) {
 func main() {
 	app := App{}
 	app.Initialize("roommate_accounts")
-	app.Run("127.0.0.1:8000")
+	app.Run(":3000")
 }

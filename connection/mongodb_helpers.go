@@ -9,22 +9,14 @@ import (
 	"os"
 	"time"
 
-	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
-
 
 var mongoDBUser string
 var mongoDBPassword string
 
 func init() {
-	err := godotenv.Load(".env")
-
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-
 	mongoDBUser = os.Getenv("MONGO_DB_USER")
 	mongoDBPassword = os.Getenv("MONGO_DB_PASSWORD")
 }
