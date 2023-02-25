@@ -26,6 +26,7 @@ func (rm *RoutesManager) Intialize() {
 	rm.Router.HandleFunc("/payment-logs", rm.PaymentLogController.GetPaymentLogsHandler).Methods("GET")
 	rm.Router.HandleFunc("/payment-log/{id}", rm.PaymentLogController.GetPaymentLogsByIdHandler).Methods("GET")
 	rm.Router.HandleFunc("/payment-log/create", rm.PaymentLogController.CreatePaymentLogHandler).Methods("POST")
+	rm.Router.HandleFunc("/payment-log/delete/{id}", rm.PaymentLogController.DeletePaymentLogHandler).Methods("DELETE")
 
 	initialized = true
 }

@@ -22,8 +22,14 @@ func (pl *PaymentLogService) GetPaymentLogById(id string) (models.PaymentLog, er
 	paymentLogCollection := pl.Db.Collection(connection.PAYMENT_LOGS_COLLECTION)
 	objId, err := primitive.ObjectIDFromHex(id)
 
+	filter := bson.M{
+		"_id": objId,
+		"deletedAt": bson.M{
+			"$exists": false,
+		}}
+
 	if err == nil {
-		err = paymentLogCollection.FindOne(context.TODO(), bson.M{"_id": objId}).Decode(&paymentLog)
+		err = paymentLogCollection.FindOne(context.TODO(), filter).Decode(&paymentLog)
 	}
 
 	return paymentLog, err
@@ -34,7 +40,11 @@ func (pl *PaymentLogService) GetAllPaymentLogs() ([]models.PaymentLog, error) {
 	var paymentLogs []models.PaymentLog
 	paymentLogCollection := pl.Db.Collection(connection.PAYMENT_LOGS_COLLECTION)
 
-	pointer, err := paymentLogCollection.Find(context.TODO(), bson.M{})
+	filter := bson.M{"deletedAt": bson.M{
+		"$exists": false,
+	}}
+
+	pointer, err := paymentLogCollection.Find(context.TODO(), filter)
 
 	if err == nil {
 		err = pointer.All(context.TODO(), &paymentLogs)

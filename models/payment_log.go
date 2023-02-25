@@ -28,7 +28,8 @@ type PaymentLog struct {
 	UsersInvolved []primitive.ObjectID `json:"usersInvolved" bson:"usersInvolved"`
 	Portions      []PaymentPortion     `json:"portions" bson:"portions"`
 	PaidBy        UserInfo             `json:"paidBy" bson:"paidBy"`
-	CreatedAt     time.Time            `json:"createdAt" bson:"createdAt"`
+	CreatedAt     time.Time            `json:"-" bson:"createdAt"`
+	DeletedAt     time.Time            `json:"-" bson:"deletedAt,omitempty"`
 }
 
 func (model PaymentLog) GetHash() string {
