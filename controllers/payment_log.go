@@ -91,7 +91,7 @@ func (plc PaymentLogController) CreatePaymentLogHandler(w http.ResponseWriter, r
 		}
 
 		involvedUser, _ := plc.UserService.GetUserById(portion.UserId.Hex())
-		paymentLog.Portions[i].UserName = involvedUser.Name
+		paymentLog.Portions[i].UserName = involvedUser.Username
 		amount := paymentLog.Amount * portion.Portion
 
 		if debt, found := utils.GetItemById(userWhoPaid.ToPay, involvedUser.ID); found {
@@ -102,12 +102,12 @@ func (plc PaymentLogController) CreatePaymentLogHandler(w http.ResponseWriter, r
 
 				utils.RemoveItemById(&involvedUser.ToCollect, userWhoPaid.ID.Hex())
 
-				newDebtToPay := models.Debt{UserId: userWhoPaid.ID, UserName: userWhoPaid.Name, Amount: amount}
+				newDebtToPay := models.Debt{UserId: userWhoPaid.ID, UserName: userWhoPaid.Username, Amount: amount}
 				involvedUser.ToPay = append(involvedUser.ToPay, newDebtToPay)
 
 				utils.RemoveItemById(&userWhoPaid.ToPay, involvedUser.ID.Hex())
 
-				newDebtToCollect := models.Debt{UserId: involvedUser.ID, UserName: involvedUser.Name, Amount: amount}
+				newDebtToCollect := models.Debt{UserId: involvedUser.ID, UserName: involvedUser.Username, Amount: amount}
 				userWhoPaid.ToCollect = append(userWhoPaid.ToCollect, newDebtToCollect)
 			} else if newAmount == 0 {
 
@@ -118,7 +118,7 @@ func (plc PaymentLogController) CreatePaymentLogHandler(w http.ResponseWriter, r
 				debt.Amount = -newAmount
 				utils.UpdateItem(&userWhoPaid.ToPay, *debt)
 
-				newDebtToCollect := models.Debt{UserId: userWhoPaid.ID, UserName: userWhoPaid.Name, Amount: -newAmount}
+				newDebtToCollect := models.Debt{UserId: userWhoPaid.ID, UserName: userWhoPaid.Username, Amount: -newAmount}
 				utils.UpdateItem(&involvedUser.ToCollect, newDebtToCollect)
 			}
 
@@ -126,13 +126,13 @@ func (plc PaymentLogController) CreatePaymentLogHandler(w http.ResponseWriter, r
 			newDebtToCollect := models.Debt{UserId: debt.UserId, UserName: debt.UserName, Amount: debt.Amount + amount}
 			utils.UpdateItem(&userWhoPaid.ToCollect, newDebtToCollect)
 
-			newDebtToPay := models.Debt{UserId: userWhoPaid.ID, UserName: userWhoPaid.Name, Amount: debt.Amount + amount}
+			newDebtToPay := models.Debt{UserId: userWhoPaid.ID, UserName: userWhoPaid.Username, Amount: debt.Amount + amount}
 			utils.UpdateItem(&involvedUser.ToPay, newDebtToPay)
 		} else {
-			newDebtToPay := models.Debt{UserId: userWhoPaid.ID, UserName: userWhoPaid.Name, Amount: amount}
+			newDebtToPay := models.Debt{UserId: userWhoPaid.ID, UserName: userWhoPaid.Username, Amount: amount}
 			involvedUser.ToPay = append(involvedUser.ToPay, newDebtToPay)
 
-			newDebtToCollect := models.Debt{UserId: involvedUser.ID, UserName: involvedUser.Name, Amount: amount}
+			newDebtToCollect := models.Debt{UserId: involvedUser.ID, UserName: involvedUser.Username, Amount: amount}
 			userWhoPaid.ToCollect = append(userWhoPaid.ToCollect, newDebtToCollect)
 		}
 
@@ -141,7 +141,7 @@ func (plc PaymentLogController) CreatePaymentLogHandler(w http.ResponseWriter, r
 
 	plc.UserService.UpdateUser(userWhoPaid)
 
-	paymentLog.PaidBy.Username = userWhoPaid.Name
+	paymentLog.PaidBy.Username = userWhoPaid.Username
 	newPaymentLog, _ := plc.PaymentLogService.CreatePaymentLog(&paymentLog)
 	resp = Response[models.PaymentLog]{Success: true, Data: newPaymentLog}
 	w.WriteHeader(http.StatusOK)
@@ -178,10 +178,10 @@ func (plc PaymentLogController) DeletePaymentLogHandler(w http.ResponseWriter, r
 		amount := paymentLog.Amount * portion.Portion
 
 		if debt, found := utils.GetItemById(userWhoPaid.ToPay, involvedUser.ID); found {
-			newDebtToPay := models.Debt{UserId: involvedUser.ID, UserName: involvedUser.Name, Amount: debt.Amount + amount}
+			newDebtToPay := models.Debt{UserId: involvedUser.ID, UserName: involvedUser.Username, Amount: debt.Amount + amount}
 			utils.UpdateItem(&userWhoPaid.ToPay, newDebtToPay)
 
-			newDebtToCollect := models.Debt{UserId: userWhoPaid.ID, UserName: userWhoPaid.Name, Amount: debt.Amount + amount}
+			newDebtToCollect := models.Debt{UserId: userWhoPaid.ID, UserName: userWhoPaid.Username, Amount: debt.Amount + amount}
 			utils.UpdateItem(&involvedUser.ToCollect, newDebtToCollect)
 		} else if debt, found := utils.GetItemById(userWhoPaid.ToCollect, involvedUser.ID); found {
 			newAmount := amount - debt.Amount
@@ -189,11 +189,11 @@ func (plc PaymentLogController) DeletePaymentLogHandler(w http.ResponseWriter, r
 
 			if amount > 0 {
 				utils.RemoveItemById(&userWhoPaid.ToCollect, involvedUser.ID.Hex())
-				newDebtToPay := models.Debt{UserId: involvedUser.ID, UserName: involvedUser.Name, Amount: debt.Amount + amount}
+				newDebtToPay := models.Debt{UserId: involvedUser.ID, UserName: involvedUser.Username, Amount: debt.Amount + amount}
 				userWhoPaid.ToPay = append(userWhoPaid.ToPay, newDebtToPay)
 
 				utils.RemoveItemById(&involvedUser.ToPay, userWhoPaid.ID.Hex())
-				newDebtToCollect := models.Debt{UserId: userWhoPaid.ID, UserName: userWhoPaid.Name, Amount: debt.Amount + amount}
+				newDebtToCollect := models.Debt{UserId: userWhoPaid.ID, UserName: userWhoPaid.Username, Amount: debt.Amount + amount}
 				involvedUser.ToCollect = append(involvedUser.ToCollect, newDebtToCollect)
 			} else if newAmount == 0 {
 				utils.RemoveItemById(&userWhoPaid.ToCollect, involvedUser.ID.Hex())
@@ -202,15 +202,15 @@ func (plc PaymentLogController) DeletePaymentLogHandler(w http.ResponseWriter, r
 				debt.Amount = -newAmount
 				utils.UpdateItem(&userWhoPaid.ToCollect, *debt)
 
-				newDebtToPay := models.Debt{UserId: userWhoPaid.ID, UserName: userWhoPaid.Name, Amount: -newAmount}
+				newDebtToPay := models.Debt{UserId: userWhoPaid.ID, UserName: userWhoPaid.Username, Amount: -newAmount}
 				utils.UpdateItem(&involvedUser.ToPay, newDebtToPay)
 			}
 
 		} else {
-			newDebtToPay := models.Debt{UserId: involvedUser.ID, UserName: involvedUser.Name, Amount: amount}
+			newDebtToPay := models.Debt{UserId: involvedUser.ID, UserName: involvedUser.Username, Amount: amount}
 			userWhoPaid.ToPay = append(userWhoPaid.ToPay, newDebtToPay)
 
-			newDebtToCollect := models.Debt{UserId: userWhoPaid.ID, UserName: userWhoPaid.Name, Amount: amount}
+			newDebtToCollect := models.Debt{UserId: userWhoPaid.ID, UserName: userWhoPaid.Username, Amount: amount}
 			involvedUser.ToCollect = append(involvedUser.ToCollect, newDebtToCollect)
 		}
 		plc.UserService.UpdateUser(involvedUser)
@@ -218,7 +218,7 @@ func (plc PaymentLogController) DeletePaymentLogHandler(w http.ResponseWriter, r
 	}
 	plc.UserService.UpdateUser(userWhoPaid)
 
-	paymentLog.PaidBy.Username = userWhoPaid.Name
+	paymentLog.PaidBy.Username = userWhoPaid.Username
 	paymentLog.DeletedAt = time.Now()
 
 	error := plc.PaymentLogService.UpdatePaymentLog(&paymentLog)

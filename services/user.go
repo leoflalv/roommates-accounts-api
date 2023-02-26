@@ -60,7 +60,9 @@ func (u *UserService) CreateUser(user *models.User) (models.User, error) {
 
 	newUser = models.User{
 		ID:        result.InsertedID.(primitive.ObjectID),
-		Name:      user.Name,
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
+		Username:  user.Username,
 		ToPay:     user.ToPay,
 		ToCollect: user.ToCollect,
 	}
