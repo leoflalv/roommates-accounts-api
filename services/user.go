@@ -71,13 +71,7 @@ func (u *UserService) CreateUser(user *models.User) (models.User, error) {
 func (u *UserService) UpdateUser(user *models.User) error {
 	userCollection := u.Db.Collection(connection.USERS_COLLECTION)
 
-	var updateFields interface{}
-	conv, _ := bson.Marshal(user)
-	bson.Unmarshal(conv, &updateFields)
-
-	resp, err := userCollection.UpdateOne(context.TODO(), bson.M{"_id": user.ID}, bson.M{
-		"$set": updateFields,
-	})
+	resp, err := userCollection.ReplaceOne(context.TODO(), bson.M{"_id": user.ID}, user)
 
 	if resp.MatchedCount == 0 {
 		return mongo.ErrNoDocuments
