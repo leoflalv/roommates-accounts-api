@@ -32,6 +32,18 @@ func (u *UserService) GetUserById(id string) (*models.User, error) {
 	return &user, err
 }
 
+func (u *UserService) GetUserByUsername(username string) (*models.User, error) {
+	var user models.User
+	userCollection := u.Db.Collection(connection.USERS_COLLECTION)
+
+	err := userCollection.FindOne(context.TODO(), bson.M{"username": username}).Decode(&user)
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, err
+}
+
 func (u *UserService) GetAllUsers() ([]models.User, error) {
 
 	var users []models.User

@@ -18,6 +18,7 @@ func (model User) GetHash() string {
 
 type UserService interface {
 	GetUserById(id string) (*User, error)
+	GetUserByUsername(username string) (*User, error)
 	GetAllUsers() ([]User, error)
 	CreateUser(user *User) (User, error)
 	UpdateUser(user *User) error

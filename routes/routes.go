@@ -18,6 +18,7 @@ func (rm *RoutesManager) Intialize() {
 
 	//auth
 	rm.Router.HandleFunc("/register", rm.AuthController.Register).Methods("POST")
+	rm.Router.HandleFunc("/login", rm.AuthController.Login).Methods("POST")
 
 	// users
 	rm.Router.HandleFunc("/users", rm.UserController.GetUsersHandler).Methods("GET")
