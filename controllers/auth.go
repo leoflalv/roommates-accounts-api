@@ -114,7 +114,7 @@ func (ac AuthController) Login(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		resp = Response[AuthResponse]{Success: false, Errors: "Incorrect password"}
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusUnauthorized)
 		jsonResponse, _ := json.Marshal(resp)
 		w.Write(jsonResponse)
 		return
