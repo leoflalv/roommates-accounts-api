@@ -21,8 +21,8 @@ func (rm *RoutesManager) Intialize() {
 	rm.Router.HandleFunc("/login", rm.AuthController.Login).Methods("POST")
 
 	// users
+	rm.Router.HandleFunc("/me", rm.UserController.GetMe).Methods("GET")
 	rm.Router.HandleFunc("/users", rm.UserController.GetUsersHandler).Methods("GET")
-	rm.Router.HandleFunc("/user/{id}", rm.UserController.GetUsersByIdHandler).Methods("GET")
 	rm.Router.HandleFunc("/user/delete/{id}", rm.UserController.DeleteUserHandler).Methods("DELETE")
 	rm.Router.HandleFunc("/user/update", rm.UserController.UpdateUserHandler).Methods("PUT")
 

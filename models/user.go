@@ -7,7 +7,7 @@ type User struct {
 	FirstName string             `json:"firstName" bson:"firstName"`
 	LastName  string             `json:"lastName" bson:"lastName"`
 	Username  string             `json:"username" bson:"username"`
-	Password  []byte             `json:"password" bson:"password"`
+	Password  []byte             `json:"-" bson:"password"`
 	ToPay     []Debt             `json:"toPay" bson:"toPay"`
 	ToCollect []Debt             `json:"toCollect" bson:"toCollect"`
 }
