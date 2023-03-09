@@ -103,7 +103,7 @@ func (ac AuthController) Login(w http.ResponseWriter, r *http.Request) {
 	expiredDate := time.Now().Add(time.Hour)
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := token.Claims.(jwt.MapClaims)
-	claims["issuer"] = user.ID.String()
+	claims["issuer"] = user.ID.Hex()
 	claims["exp"] = expiredDate.Unix()
 	tokenString, err := token.SignedString([]byte(constants.JWT_SECRET_KEY))
 
