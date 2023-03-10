@@ -40,12 +40,8 @@ func (uc UserController) GetUsersHandler(w http.ResponseWriter, r *http.Request)
 func (uc UserController) GetMe(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	cookie, err := r.Cookie("jwt")
+	cookie, _ := r.Cookie("jwt")
 	// Verify issues getting cookies
-	if err != nil {
-		utils.HttpError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
 
 	token, err := jwt.Parse(cookie.Value, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
