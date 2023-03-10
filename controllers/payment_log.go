@@ -55,9 +55,7 @@ func (plc PaymentLogController) GetPaymentLogsByIdHandler(w http.ResponseWriter,
 	}
 
 	resp := utils.Response[models.PaymentLog]{Data: paymentLog, Success: true}
-	w.WriteHeader(http.StatusOK)
-	jsonResponse, _ := json.Marshal(resp)
-	w.Write(jsonResponse)
+	utils.HttpSuccess(w, http.StatusOK, &resp)
 }
 
 // .
@@ -67,13 +65,10 @@ func (plc PaymentLogController) CreatePaymentLogHandler(w http.ResponseWriter, r
 	w.Header().Set("Content-Type", "application/json")
 
 	var paymentLog models.PaymentLog
-	var resp utils.Response[models.PaymentLog]
 
 	if err := json.NewDecoder(r.Body).Decode(&paymentLog); err != nil {
-		resp = utils.Response[models.PaymentLog]{Success: false, Errors: "Bad request"}
-		w.WriteHeader(http.StatusBadRequest)
-		jsonResponse, _ := json.Marshal(resp)
-		w.Write(jsonResponse)
+		utils.HttpError(w, http.StatusBadRequest, "Bad request")
+		return
 	}
 
 	userWhoPaid, _ := plc.UserService.GetUserById(paymentLog.PaidBy.ID.Hex())
@@ -104,11 +99,9 @@ func (plc PaymentLogController) CreatePaymentLogHandler(w http.ResponseWriter, r
 				newDebtToCollect := models.Debt{UserId: involvedUser.ID, UserName: involvedUser.Username, Amount: amount}
 				userWhoPaid.ToCollect = append(userWhoPaid.ToCollect, newDebtToCollect)
 			} else if newAmount == 0 {
-
 				utils.RemoveItemById(&involvedUser.ToCollect, userWhoPaid.ID.Hex())
 				utils.RemoveItemById(&userWhoPaid.ToPay, involvedUser.ID.Hex())
 			} else {
-
 				debt.Amount = -newAmount
 				utils.UpdateItem(&userWhoPaid.ToPay, *debt)
 
@@ -134,14 +127,10 @@ func (plc PaymentLogController) CreatePaymentLogHandler(w http.ResponseWriter, r
 	}
 
 	plc.UserService.UpdateUser(userWhoPaid)
-
 	paymentLog.PaidBy.Username = userWhoPaid.Username
 	newPaymentLog, _ := plc.PaymentLogService.CreatePaymentLog(&paymentLog)
-	resp = utils.Response[models.PaymentLog]{Success: true, Data: newPaymentLog}
-	w.WriteHeader(http.StatusOK)
-
-	jsonResponse, _ := json.Marshal(resp)
-	w.Write(jsonResponse)
+	resp := utils.Response[models.PaymentLog]{Success: true, Data: newPaymentLog}
+	utils.HttpSuccess(w, http.StatusCreated, &resp)
 }
 
 // .
@@ -152,12 +141,10 @@ func (plc PaymentLogController) DeletePaymentLogHandler(w http.ResponseWriter, r
 
 	params := mux.Vars(r)
 	id := params["id"]
-	var resp utils.Response[struct{}]
 	paymentLog, err := plc.PaymentLogService.GetPaymentLogById(id)
 
 	if err == mongo.ErrNoDocuments {
-		resp = utils.Response[struct{}]{Success: false, Errors: "No documents with this id"}
-		w.WriteHeader(http.StatusNotFound)
+		utils.HttpError(w, http.StatusNotFound, "No documents with this id")
 		return
 	}
 
@@ -218,15 +205,12 @@ func (plc PaymentLogController) DeletePaymentLogHandler(w http.ResponseWriter, r
 	error := plc.PaymentLogService.UpdatePaymentLog(&paymentLog)
 
 	if error != nil {
-		resp = utils.Response[struct{}]{Success: false}
-		w.WriteHeader(http.StatusInternalServerError)
-	} else {
-		resp = utils.Response[struct{}]{Success: true}
-		w.WriteHeader(http.StatusOK)
+		utils.HttpError(w, http.StatusInternalServerError, error.Error())
+		return
 	}
 
-	jsonResponse, _ := json.Marshal(resp)
-	w.Write(jsonResponse)
+	resp := utils.Response[struct{}]{Success: true}
+	utils.HttpSuccess(w, http.StatusOK, &resp)
 }
 
 //

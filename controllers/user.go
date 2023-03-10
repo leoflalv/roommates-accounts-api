@@ -24,18 +24,14 @@ func (uc UserController) GetUsersHandler(w http.ResponseWriter, r *http.Request)
 	w.Header().Set("Content-Type", "application/json")
 
 	users, err := uc.UserService.GetAllUsers()
-	var resp utils.Response[[]models.User]
 
 	if err != nil {
-		resp = utils.Response[[]models.User]{Success: false, Errors: err.Error()}
-		w.WriteHeader(http.StatusInternalServerError)
-	} else {
-		resp = utils.Response[[]models.User]{Data: users, Success: true}
-		w.WriteHeader(http.StatusOK)
+		utils.HttpError(w, http.StatusInternalServerError, err.Error())
+		return
 	}
 
-	jsonResponse, _ := json.Marshal(resp)
-	w.Write(jsonResponse)
+	resp := utils.Response[[]models.User]{Data: users, Success: true}
+	utils.HttpSuccess(w, http.StatusOK, &resp)
 }
 
 // .
@@ -43,12 +39,11 @@ func (uc UserController) GetUsersHandler(w http.ResponseWriter, r *http.Request)
 // .
 func (uc UserController) GetMe(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	var resp utils.Response[models.User]
 
 	cookie, err := r.Cookie("jwt")
 	// Verify issues getting cookies
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utils.HttpError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -58,8 +53,9 @@ func (uc UserController) GetMe(w http.ResponseWriter, r *http.Request) {
 		}
 		return []byte(constants.JWT_SECRET_KEY), nil
 	})
+
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusUnauthorized)
+		utils.HttpError(w, http.StatusUnauthorized, err.Error())
 		return
 	}
 
@@ -69,20 +65,17 @@ func (uc UserController) GetMe(w http.ResponseWriter, r *http.Request) {
 	user, err := uc.UserService.GetUserById(userId)
 
 	if err == mongo.ErrNoDocuments {
-		resp = utils.Response[models.User]{Success: false, Errors: "No documents with this id"}
-		w.WriteHeader(http.StatusNotFound)
+		utils.HttpError(w, http.StatusNotFound, "No documents with this id")
+		return
 	}
 
 	if err != nil {
-		resp = utils.Response[models.User]{Success: false, Errors: err.Error()}
-		w.WriteHeader(http.StatusBadRequest)
-	} else {
-		resp = utils.Response[models.User]{Data: *user, Success: true}
-		w.WriteHeader(http.StatusOK)
+		utils.HttpError(w, http.StatusInternalServerError, err.Error())
+		return
 	}
 
-	jsonResponse, _ := json.Marshal(resp)
-	w.Write(jsonResponse)
+	resp := utils.Response[models.User]{Data: *user, Success: true}
+	utils.HttpSuccess(w, http.StatusOK, &resp)
 }
 
 // .
@@ -93,26 +86,21 @@ func (uc UserController) DeleteUserHandler(w http.ResponseWriter, r *http.Reques
 
 	params := mux.Vars(r)
 	id := params["id"]
-	var resp utils.Response[string]
 
 	err := uc.UserService.RemoveUser(id)
 
 	if err == mongo.ErrNoDocuments {
-		resp = utils.Response[string]{Success: false, Errors: "No documents with this id"}
-		w.WriteHeader(http.StatusNotFound)
+		utils.HttpError(w, http.StatusNotFound, "No user with this id")
 		return
 	}
 
 	if err != nil {
-		resp = utils.Response[string]{Success: false, Errors: "Something went wrong"}
-		w.WriteHeader(http.StatusInternalServerError)
-	} else {
-		resp = utils.Response[string]{Data: id, Success: true}
-		w.WriteHeader(http.StatusOK)
+		utils.HttpError(w, http.StatusInternalServerError, err.Error())
+		return
 	}
 
-	jsonResponse, _ := json.Marshal(resp)
-	w.Write(jsonResponse)
+	resp := utils.Response[string]{Data: id, Success: true}
+	utils.HttpSuccess(w, http.StatusOK, &resp)
 }
 
 // .
@@ -122,32 +110,24 @@ func (uc UserController) UpdateUserHandler(w http.ResponseWriter, r *http.Reques
 	w.Header().Set("Content-Type", "application/json")
 
 	var user models.User
-	var resp utils.Response[models.User]
 
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-		resp = utils.Response[models.User]{Success: false, Errors: "Bad request"}
-		w.WriteHeader(http.StatusBadRequest)
+		utils.HttpError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	err := uc.UserService.UpdateUser(&user)
 
 	if err == mongo.ErrNoDocuments {
-		resp = utils.Response[models.User]{Success: false, Errors: "No documents with this id"}
-		w.WriteHeader(http.StatusNotFound)
-		jsonResponse, _ := json.Marshal(resp)
-		w.Write(jsonResponse)
+		utils.HttpError(w, http.StatusNotFound, "No user with this id")
 		return
 	}
 
 	if err != nil {
-		resp = utils.Response[models.User]{Success: false, Errors: "Something went wrong"}
-		w.WriteHeader(http.StatusInternalServerError)
-	} else {
-		resp = utils.Response[models.User]{Data: user, Success: true}
-		w.WriteHeader(http.StatusOK)
+		utils.HttpError(w, http.StatusInternalServerError, err.Error())
+		return
 	}
 
-	jsonResponse, _ := json.Marshal(resp)
-	w.Write(jsonResponse)
+	resp := utils.Response[models.User]{Data: user, Success: true}
+	utils.HttpSuccess(w, http.StatusOK, &resp)
 }
