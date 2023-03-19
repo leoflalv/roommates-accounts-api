@@ -30,8 +30,7 @@ func (uc UserController) GetUsersHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	resp := utils.Response[[]models.User]{Data: users, Success: true}
-	utils.HttpSuccess(w, http.StatusOK, &resp)
+	utils.HttpSuccess(w, http.StatusOK, &users)
 }
 
 // .
@@ -41,8 +40,8 @@ func (uc UserController) GetMe(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	cookie, _ := r.Cookie("jwt")
-	// Verify issues getting cookies
 
+	// Verify issues getting cookies
 	token, err := jwt.Parse(cookie.Value, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method")
@@ -70,8 +69,7 @@ func (uc UserController) GetMe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp := utils.Response[models.User]{Data: *user, Success: true}
-	utils.HttpSuccess(w, http.StatusOK, &resp)
+	utils.HttpSuccess(w, http.StatusOK, &user)
 }
 
 // .
@@ -95,8 +93,7 @@ func (uc UserController) DeleteUserHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	resp := utils.Response[string]{Data: id, Success: true}
-	utils.HttpSuccess(w, http.StatusOK, &resp)
+	utils.HttpSuccess(w, http.StatusOK, &id)
 }
 
 // .
@@ -124,6 +121,5 @@ func (uc UserController) UpdateUserHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	resp := utils.Response[models.User]{Data: user, Success: true}
-	utils.HttpSuccess(w, http.StatusOK, &resp)
+	utils.HttpSuccess(w, http.StatusOK, &user)
 }

@@ -54,8 +54,7 @@ func (plc PaymentLogController) GetPaymentLogsByIdHandler(w http.ResponseWriter,
 		return
 	}
 
-	resp := utils.Response[models.PaymentLog]{Data: paymentLog, Success: true}
-	utils.HttpSuccess(w, http.StatusOK, &resp)
+	utils.HttpSuccess(w, http.StatusOK, &paymentLog)
 }
 
 // .
@@ -129,8 +128,8 @@ func (plc PaymentLogController) CreatePaymentLogHandler(w http.ResponseWriter, r
 	plc.UserService.UpdateUser(userWhoPaid)
 	paymentLog.PaidBy.Username = userWhoPaid.Username
 	newPaymentLog, _ := plc.PaymentLogService.CreatePaymentLog(&paymentLog)
-	resp := utils.Response[models.PaymentLog]{Success: true, Data: newPaymentLog}
-	utils.HttpSuccess(w, http.StatusCreated, &resp)
+
+	utils.HttpSuccess(w, http.StatusCreated, &newPaymentLog)
 }
 
 // .
@@ -209,8 +208,7 @@ func (plc PaymentLogController) DeletePaymentLogHandler(w http.ResponseWriter, r
 		return
 	}
 
-	resp := utils.Response[struct{}]{Success: true}
-	utils.HttpSuccess(w, http.StatusOK, &resp)
+	utils.HttpSuccess[struct{}](w, http.StatusOK, nil)
 }
 
 //
