@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/gorilla/mux"
@@ -39,10 +40,12 @@ func (uc UserController) GetUsersHandler(w http.ResponseWriter, r *http.Request)
 func (uc UserController) GetMe(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	cookie, _ := r.Cookie("jwt")
+	reqToken := r.Header.Get("Authorization")
+	splitToken := strings.Split(reqToken, "Bearer")
+	reqToken = strings.TrimSpace(splitToken[1])
 
 	// Verify issues getting cookies
-	token, err := jwt.Parse(cookie.Value, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.Parse(reqToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method")
 		}

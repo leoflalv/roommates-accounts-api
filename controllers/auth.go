@@ -113,17 +113,7 @@ func (ac AuthController) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// If everything is ok create cookie with token
-	cookie := &http.Cookie{
-		Name:    "jwt",
-		Value:   tokenString,
-		Expires: expiredDate,
-		Path:    "/",
-		// Secure:   true,
-		HttpOnly: true,
-		SameSite: http.SameSiteStrictMode,
-	}
-	http.SetCookie(w, cookie)
-
-	utils.HttpSuccess[struct{}](w, http.StatusOK, nil)
+	utils.HttpSuccess(w, http.StatusOK, &struct {
+		Token string `json:"token"`
+	}{Token: tokenString})
 }
