@@ -75,45 +75,6 @@ func (pl *PaymentLogService) GetAllPaymentLogs(mode string, userId string) ([]mo
 	return paymentLogs, err
 }
 
-func (pl *PaymentLogService) GetPaymentLogsByUserInvolved(id string) ([]models.PaymentLog, error) {
-
-	var paymentLogs []models.PaymentLog
-	paymentLogCollection := pl.Db.Collection(connection.PAYMENT_LOGS_COLLECTION)
-	objId, err := primitive.ObjectIDFromHex(id)
-	usersIds := [1]primitive.ObjectID{objId}
-
-	if err == nil {
-		cursor, queryErr := paymentLogCollection.Find(context.TODO(), bson.M{"usersInvolved": bson.M{"$in": usersIds}})
-
-		if queryErr == nil {
-			queryErr = cursor.All(context.TODO(), &paymentLogs)
-		} else {
-			err = queryErr
-		}
-	}
-
-	return paymentLogs, err
-}
-
-func (pl *PaymentLogService) GetPaymentLogsByPayer(id string) ([]models.PaymentLog, error) {
-
-	var paymentLogs []models.PaymentLog
-	paymentLogCollection := pl.Db.Collection(connection.PAYMENT_LOGS_COLLECTION)
-	objId, err := primitive.ObjectIDFromHex(id)
-
-	if err == nil {
-		cursor, queryErr := paymentLogCollection.Find(context.TODO(), bson.M{"paidBy.userId": objId})
-
-		if queryErr == nil {
-			queryErr = cursor.All(context.TODO(), &paymentLogs)
-		} else {
-			err = queryErr
-		}
-	}
-
-	return paymentLogs, err
-}
-
 func (u *PaymentLogService) CreatePaymentLog(paymentLog *models.PaymentLog) (models.PaymentLog, error) {
 	var newPaymentLog models.PaymentLog
 	paymentLogCollection := u.Db.Collection(connection.PAYMENT_LOGS_COLLECTION)
