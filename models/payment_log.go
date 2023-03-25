@@ -38,7 +38,7 @@ func (model PaymentLog) GetHash() string {
 
 type PaymentLogService interface {
 	GetPaymentLogById(id string) (PaymentLog, error)
-	GetAllPaymentLogs() ([]PaymentLog, error)
+	GetAllPaymentLogs(mode string, userId string) ([]PaymentLog, error)
 	GetPaymentLogsByPayer(id string) ([]PaymentLog, error)
 	GetPaymentLogsByUserInvolved(userId string) ([]PaymentLog, error)
 	CreatePaymentLog(paymentLog *PaymentLog) (PaymentLog, error)

@@ -2,13 +2,9 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
-	"strings"
 
-	"github.com/golang-jwt/jwt/v4"
 	"github.com/gorilla/mux"
-	"github.com/leoflalv/roommates-accounts-api/constants"
 	"github.com/leoflalv/roommates-accounts-api/models"
 	"github.com/leoflalv/roommates-accounts-api/utils"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -40,25 +36,12 @@ func (uc UserController) GetUsersHandler(w http.ResponseWriter, r *http.Request)
 func (uc UserController) GetMe(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	reqToken := r.Header.Get("Authorization")
-	splitToken := strings.Split(reqToken, "Bearer")
-	reqToken = strings.TrimSpace(splitToken[1])
-
-	// Verify issues getting cookies
-	token, err := jwt.Parse(reqToken, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method")
-		}
-		return []byte(constants.JWT_SECRET_KEY), nil
-	})
+	userId, err := utils.GetIssuer(r)
 
 	if err != nil {
-		utils.HttpError(w, http.StatusUnauthorized, err.Error())
+		utils.HttpError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-
-	claims, _ := token.Claims.(jwt.MapClaims)
-	userId := claims["issuer"].(string)
 
 	user, err := uc.UserService.GetUserById(userId)
 

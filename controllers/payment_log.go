@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"math"
 	"net/http"
 	"time"
@@ -23,8 +24,16 @@ type PaymentLogController struct {
 func (plc PaymentLogController) GetPaymentLogsHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	paymentLogs, err := plc.PaymentLogService.GetAllPaymentLogs()
+	v := r.URL.Query()
+	mode := v.Get("mode")
 
+	userId, err := utils.GetIssuer(r)
+	if err != nil {
+		utils.HttpError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	paymentLogs, err := plc.PaymentLogService.GetAllPaymentLogs(mode, userId)
 	if err != nil {
 		utils.HttpError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -78,7 +87,19 @@ func (plc PaymentLogController) CreatePaymentLogHandler(w http.ResponseWriter, r
 			break
 		}
 
-		involvedUser, _ := plc.UserService.GetUserById(portion.UserId.Hex())
+		involvedUser, err := plc.UserService.GetUserById(portion.UserId.Hex())
+
+		// Check if the involved user exist
+		if err == mongo.ErrNoDocuments {
+			utils.HttpError(w, http.StatusNotFound, fmt.Sprintf("No involved with id: %s", portion.UserId.Hex()))
+			return
+		}
+
+		if err != nil {
+			utils.HttpError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
 		paymentLog.Portions[i].UserName = involvedUser.Username
 		amount := paymentLog.Amount * portion.Portion
 

@@ -10,6 +10,7 @@ import (
 
 	"github.com/leoflalv/roommates-accounts-api/connection"
 	"github.com/leoflalv/roommates-accounts-api/models"
+	"github.com/leoflalv/roommates-accounts-api/utils"
 )
 
 type PaymentLogService struct {
@@ -35,13 +36,34 @@ func (pl *PaymentLogService) GetPaymentLogById(id string) (models.PaymentLog, er
 	return paymentLog, err
 }
 
-func (pl *PaymentLogService) GetAllPaymentLogs() ([]models.PaymentLog, error) {
+func (pl *PaymentLogService) GetAllPaymentLogs(mode string, userId string) ([]models.PaymentLog, error) {
 
 	var paymentLogs []models.PaymentLog
 	paymentLogCollection := pl.Db.Collection(connection.PAYMENT_LOGS_COLLECTION)
 
-	filter := bson.M{"deletedAt": bson.M{
-		"$exists": false,
+	var idFilter primitive.M
+
+	objId, err := primitive.ObjectIDFromHex(userId)
+
+	switch mode {
+	case utils.OnlyPaid:
+		idFilter = bson.M{"paidBy.userId": objId}
+	case utils.OnlyInvolved:
+		idFilter = bson.M{"usersInvolved": bson.M{"$in": []primitive.ObjectID{objId}}}
+	default:
+		idFilter = bson.M{"$or": []bson.M{
+			{"usersInvolved": bson.M{"$in": []primitive.ObjectID{objId}}},
+			{"paidBy.userId": objId},
+		}}
+	}
+
+	filter := bson.D{{Key: "$and",
+		Value: []bson.M{
+			idFilter,
+			{"deletedAt": bson.M{
+				"$exists": false,
+			}},
+		},
 	}}
 
 	pointer, err := paymentLogCollection.Find(context.TODO(), filter)
