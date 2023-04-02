@@ -107,8 +107,7 @@ func (plc PaymentLogController) CreatePaymentLogHandler(w http.ResponseWriter, r
 			newAmount := amount - debt.Amount
 			amount = math.Max(newAmount, 0)
 
-			if newAmount > 0 {
-
+			if newAmount > utils.ZERO {
 				utils.RemoveItemById(&involvedUser.ToCollect, userWhoPaid.ID.Hex())
 
 				newDebtToPay := models.Debt{UserId: userWhoPaid.ID, UserName: userWhoPaid.Username, Amount: amount}
@@ -118,7 +117,7 @@ func (plc PaymentLogController) CreatePaymentLogHandler(w http.ResponseWriter, r
 
 				newDebtToCollect := models.Debt{UserId: involvedUser.ID, UserName: involvedUser.Username, Amount: amount}
 				userWhoPaid.ToCollect = append(userWhoPaid.ToCollect, newDebtToCollect)
-			} else if newAmount == 0 {
+			} else if newAmount <= utils.ZERO && newAmount >= -utils.ZERO {
 				utils.RemoveItemById(&involvedUser.ToCollect, userWhoPaid.ID.Hex())
 				utils.RemoveItemById(&userWhoPaid.ToPay, involvedUser.ID.Hex())
 			} else {
@@ -188,7 +187,7 @@ func (plc PaymentLogController) DeletePaymentLogHandler(w http.ResponseWriter, r
 			newAmount := amount - debt.Amount
 			amount = math.Max(newAmount, 0)
 
-			if amount > 0 {
+			if amount > utils.ZERO {
 				utils.RemoveItemById(&userWhoPaid.ToCollect, involvedUser.ID.Hex())
 				newDebtToPay := models.Debt{UserId: involvedUser.ID, UserName: involvedUser.Username, Amount: debt.Amount + amount}
 				userWhoPaid.ToPay = append(userWhoPaid.ToPay, newDebtToPay)
@@ -196,9 +195,9 @@ func (plc PaymentLogController) DeletePaymentLogHandler(w http.ResponseWriter, r
 				utils.RemoveItemById(&involvedUser.ToPay, userWhoPaid.ID.Hex())
 				newDebtToCollect := models.Debt{UserId: userWhoPaid.ID, UserName: userWhoPaid.Username, Amount: debt.Amount + amount}
 				involvedUser.ToCollect = append(involvedUser.ToCollect, newDebtToCollect)
-			} else if newAmount == 0 {
+			} else if newAmount <= utils.ZERO && newAmount >= -utils.ZERO {
 				utils.RemoveItemById(&userWhoPaid.ToCollect, involvedUser.ID.Hex())
-				utils.RemoveItemById(&involvedUser.ToPay, involvedUser.ID.Hex())
+				utils.RemoveItemById(&involvedUser.ToPay, userWhoPaid.ID.Hex())
 			} else {
 				debt.Amount = -newAmount
 				utils.UpdateItem(&userWhoPaid.ToCollect, *debt)
