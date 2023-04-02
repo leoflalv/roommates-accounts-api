@@ -6,27 +6,23 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var mongoDBUser string
-var mongoDBPassword string
-
-func init() {
-	mongoDBUser = os.Getenv("MONGO_DB_USER")
-	mongoDBPassword = os.Getenv("MONGO_DB_PASSWORD")
+type Settings struct {
+	MongoDBUser     string
+	MongoDBPassword string
 }
 
 // ConnectDB: Return a data base model.
-func ConnectDB(dbName string) *mongo.Database {
+func ConnectDB(dbName string, settings Settings) *mongo.Database {
 
 	// MongoDBClusterUri
 	uri := fmt.Sprintf("mongodb+srv://%s:%s@roommatepaymentcluster.baqgzpz.mongodb.net/?retryWrites=true&w=majority",
-		mongoDBUser, mongoDBPassword)
+		settings.MongoDBUser, settings.MongoDBPassword)
 
 	// Client options
 	clientOptions := options.Client().ApplyURI(uri)

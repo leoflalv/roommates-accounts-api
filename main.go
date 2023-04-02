@@ -4,28 +4,30 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 	"github.com/leoflalv/roommates-accounts-api/connection"
 	"github.com/leoflalv/roommates-accounts-api/controllers"
 	"github.com/leoflalv/roommates-accounts-api/routes"
 	"github.com/leoflalv/roommates-accounts-api/services"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type App struct {
 	RoutesManager routes.RoutesManager
+	Db            *mongo.Database
 	Initilized    bool
 }
 
-func (app *App) Initialize(dbName string) {
-	db := connection.ConnectDB(dbName)
+func (app *App) Initialize() {
 
-	userService := &services.UserService{Db: db}
+	userService := &services.UserService{Db: app.Db}
 	userController := controllers.UserController{UserService: userService}
 
 	authController := controllers.AuthController{UserService: userService}
 
-	paymentLogService := &services.PaymentLogService{Db: db}
+	paymentLogService := &services.PaymentLogService{Db: app.Db}
 	paymentLogController := controllers.PaymentLogController{UserService: userService, PaymentLogService: paymentLogService}
 
 	router := mux.NewRouter()
@@ -52,7 +54,13 @@ func (app *App) Run(addr string) {
 }
 
 func main() {
-	app := App{}
-	app.Initialize("roommate_accounts")
+	settings := connection.Settings{
+		MongoDBUser:     os.Getenv("MONGO_DB_USER"),
+		MongoDBPassword: os.Getenv("MONGO_DB_PASSWORD"),
+	}
+
+	db := connection.ConnectDB("roommate_accounts", settings)
+	app := App{Db: db}
+	app.Initialize()
 	app.Run(":3000")
 }
