@@ -122,8 +122,14 @@ func (u *PaymentLogService) RemovePaymentLog(id string) error {
 	paymentLogCollection := u.Db.Collection(connection.PAYMENT_LOGS_COLLECTION)
 	objId, err := primitive.ObjectIDFromHex(id)
 
+	filter := bson.M{
+		"_id": objId,
+		"deletedAt": bson.M{
+			"$exists": false,
+		}}
+
 	if err == nil {
-		_, err = paymentLogCollection.DeleteOne(context.TODO(), bson.M{"_id": objId})
+		_, err = paymentLogCollection.DeleteOne(context.TODO(), filter)
 	}
 
 	return err
